@@ -58,7 +58,7 @@ docker compose up --build      # Postgres 16 + FastAPI (:8000) + Vite UI (:5173)
 
 The UI dev server proxies `/v1/*` to the API on port 8000.
 
-> Note: `docker-compose.yml` mounts `./db` into the Postgres init directory, but the DDL lives in `Sql Scripts/` — apply the scripts manually (`psql -f "Sql Scripts/db01-schema.sql"` … `db09`) or move them into `db/` before first start.
+> On first start, Postgres automatically applies the DDL from `Sql Scripts/` (`db01`–`db09`, executed in name order) through the `docker-entrypoint-initdb.d` mount. The mount is read-only; schema changes must be made in the scripts and re-applied or run against the running database.
 
 ## Key Design Decisions
 
