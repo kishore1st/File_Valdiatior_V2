@@ -1,0 +1,6 @@
+customer_id,first_name,last_name,dob,country
+4001,Oliver,Smith,1993-03-22,GB
+4002,Emily,Jones,1988-09-02,GB
+4003,Harry,Williams,1976-11-30,GB
+4004,Amelia,Brown,1991-04-17,GB
+4005,George,Taylor,1984-12-05,GB

@@ -1,0 +1,1 @@
+(If you use @vitejs/plugin-react, add it to devDependencies; otherwise drop the plugin import and the plugins entry.)

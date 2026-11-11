@@ -1,0 +1,137 @@
+
+---
+
+## `docs/09-sso-test-plan.md`
+
+```markdown
+# Okta SSO Test Plan (Req 28C)
+
+Version: 1.0 · Owner: Identity + QA · MVP sign-off gate
+
+## 1. Objective
+
+Validate that:
+1. Okta authentication works for **all** supported user roles
+2. Authorization correctly gates every endpoint by role
+3. Sessions behave correctly (expiry, logout, revoke)
+4. ServiceNow access provisioning/deprovisioning flows enforce correctly
+5. No authentication bypass exists
+
+## 2. Scope (Req 28C, verbatim)
+
+- Validate authentication with multiple concurrent users
+- Verify user authorization and role-based access
+- Test session management and token expiration
+- Validate unauthorized access restrictions
+- Test logout and session termination
+- Verify access provisioning and deprovisioning through the Admin Portal and ServiceNow workflow
+
+## 3. Test user matrix
+
+| Email | Okta groups | `users.roles` | `users.access_status` | Purpose |
+|---|---|---|---|---|
+| `uploader@test` | fvi-uploader | uploader | approved | Normal upload path |
+| `approver@test` | fvi-approver | approver | approved | Review/approve |
+| `auditor@test` | fvi-auditor | auditor | approved | Read-only |
+| `admin@test` | fvi-admin | admin, uploader, approver, auditor | approved | Full access |
+| `pending@test` | fvi-uploader | uploader | pending | Access denial |
+| `revoked@test` | fvi-uploader | uploader | revoked | Access denial |
+
+## 4. Test cases
+
+### 4.1 Authentication (§28C bullets 1, 2)
+
+| ID | Scenario | Steps | Expected |
+|---|---|---|---|
+| SSO-01 | Successful OIDC login | Navigate to UI; click Login; enter `uploader@test` credentials | Redirect back to app; `sessionStorage.okta_token` set; `/v1/auth/me` returns 200 with roles |
+| SSO-02 | Logout | Click Logout | Token removed from sessionStorage; `/v1/auth/me` returns 401 |
+| SSO-03 | Concurrent logins | 10 browser sessions log in as different test users within 30 s | Each session gets own token; no shared state; each `/me` returns correct user |
+| SSO-04 | Invalid credentials | Login with wrong password | Okta rejects; no token issued |
+| SSO-05 | Invalid `client_id` | Configure UI with wrong client_id | Okta error; no token issued |
+| SSO-06 | Redirect URI mismatch | Configure UI with wrong redirect_uri | Okta error; no code issued |
+
+### 4.2 Authorization (§28C bullet 2)
+
+| ID | Scenario | Steps | Expected |
+|---|---|---|---|
+| AUTH-01 | Uploader can upload | Login as `uploader@test`; POST `/v1/batches` with valid file | 202 |
+| AUTH-02 | Auditor cannot upload | Login as `auditor@test`; POST `/v1/batches` | 403 (role check) |
+| AUTH-03 | Auditor can read | Login as `auditor@test`; GET `/v1/files` | 200 |
+| AUTH-04 | Uploader cannot admin | Login as `uploader@test`; POST `/v1/watchers/{id}/reset` | 403 |
+| AUTH-05 | Admin can admin | Login as `admin@test`; POST `/v1/watchers/{id}/reset` | 200 |
+| AUTH-06 | Missing token | GET `/v1/files` with no Authorization header | 401 |
+| AUTH-07 | Malformed token | GET `/v1/files` with `Bearer garbage` | 401 |
+| AUTH-08 | Expired token | Wait for token expiry (>1 h or mock); GET `/v1/files` | 401 |
+| AUTH-09 | `access_status='pending'` | Login as `pending@test`; GET `/v1/files` | 403 |
+| AUTH-10 | `access_status='revoked'` | Login as `revoked@test`; GET `/v1/files` | 403 |
+
+### 4.3 Session management (§28C bullet 3)
+
+| ID | Scenario | Steps | Expected |
+|---|---|---|---|
+| SESS-01 | Session created | Successful login | `sso_sessions` row with `okta_session_id`, `expires_at` set |
+| SESS-02 | Token refresh | Wait for access token expiry; perform refresh | New token in sessionStorage; API accepts it; old token rejected |
+| SESS-03 | Session expiry | Wait past `expires_at` | Subsequent API call → 401 |
+| SESS-04 | Multiple concurrent sessions per user | Same user logs in on 2 browsers | 2 `sso_sessions` rows; both valid |
+| SESS-05 | `session_epoch` bump | Admin sets `users.session_epoch = session_epoch + 1` | All existing sessions rejected on next request (401) |
+
+### 4.4 Session termination (§28C bullet 5)
+
+| ID | Scenario | Steps | Expected |
+|---|---|---|---|
+| TERM-01 | User-initiated logout | Click Logout | `sso_sessions.revoked_at` set; reason='logout'; token unusable |
+| TERM-02 | Admin-initiated revoke | Admin POSTs revoke for user | All sessions of that user get `revoked_at`; `session_epoch` +1 |
+| TERM-03 | Idle timeout | Leave browser idle for 30 min | Session expires; next API call → 401 |
+| TERM-04 | Browser tab close | Close tab; reopen browser | Okta requires re-login |
+| TERM-05 | Concurrent sessions of different users | User A logs out while user B stays logged in | B unaffected; A's token dead |
+
+### 4.5 Provisioning / deprovisioning (§28C bullet 6)
+
+These tests span Okta → ServiceNow → `users` table → API.
+
+| ID | Scenario | Steps | Expected |
+|---|---|---|---|
+| PROV-01 | ServiceNow approval → access | User submits SNOW request; approver approves; sync job runs | `users.access_status='approved'`, `snow_request_id` populated; user can authenticate |
+| PROV-02 | SNOW rejection | User submits SNOW request; approver rejects | No `users` row created, or `access_status='revoked'`; user gets 403 on login attempt |
+| PROV-03 | ServiceNow revocation | Approver marks request as revoked; sync job runs | `users.access_status='revoked'`; `users.session_epoch` +1; existing sessions invalidated |
+| PROV-04 | Okta deactivation | Admin deactivates user in Okta | Next API call → 401 (JWKS no longer validates); sync job marks `users.is_active=FALSE` |
+| PROV-05 | Okta group removal | User removed from `fvi-uploader` group in Okta | On next token refresh, `roles` no longer includes `uploader`; upload attempts → 403 |
+
+### 4.6 Under load (Req 28C bullet 1)
+
+| ID | Scenario | Steps | Expected |
+|---|---|---|---|
+| LOAD-01 | 50 concurrent logins | 50 sessions log in within 60 s | All succeed; p95 login < 3 s |
+| LOAD-02 | RBAC under load | Mixed-role load test with 20 uploaders + 20 auditors + 10 admins for 5 min | No 200 returned to auditor for upload; no 403 returned to uploader for upload |
+| LOAD-03 | Token refresh under load | 20 sessions refresh tokens concurrently | All succeed; no session invalidation |
+| LOAD-04 | Expiry under load | Force expiry on all sessions mid-load | All 401; no crashes; error rate 100% for expired tokens only |
+
+## 5. Automation approach
+
+- **Manual + Playwright:** SSO-01 through SSO-06, PROV-01 through PROV-05 (require human-in-the-loop via SNOW)
+- **pytest + httpx:** AUTH-01 through AUTH-10, SESS-01 through SESS-05, TERM-01 through TERM-05, LOAD-02/03/04 (mock token refresh)
+- **k6:** LOAD-01, LOAD-02
+
+## 6. Environment setup
+
+```bash
+# Test tenant in Okta
+# 1. Create 6 test users matching §3
+# 2. Create 4 groups: fvi-uploader, fvi-approver, fvi-auditor, fvi-admin
+# 3. Register OIDC app with PKCE
+# 4. Set redirect URI: http://localhost:5173/login/callback
+# 5. Set post-logout redirect: http://localhost:5173/
+
+# Seed users in DB
+psql $PG_DSN -c "
+INSERT INTO fvi.users (okta_user_id, email, display_name, region_code, roles, access_status)
+VALUES
+ ('okta-uploader',   'uploader@test',  'Uploader',   'IN', ARRAY['uploader'], 'approved'),
+ ('okta-approver',   'approver@test',  'Approver',   'IN', ARRAY['approver'], 'approved'),
+ ('okta-auditor',    'auditor@test',   'Auditor',    'US', ARRAY['auditor'],  'approved'),
+ ('okta-admin',      'admin@test',     'Admin',      'IN', ARRAY['admin','uploader','approver','auditor'], 'approved'),
+ ('okta-pending',    'pending@test',   'Pending',    'IN', ARRAY['uploader'], 'pending'),
+ ('okta-revoked',    'revoked@test',   'Revoked',    'IN', ARRAY['uploader'], 'revoked')
+ON CONFLICT (okta_user_id) DO UPDATE SET
+  roles=EXCLUDED.roles, access_status=EXCLUDED.access_status;
+"

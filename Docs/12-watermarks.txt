@@ -1,0 +1,27 @@
+
+---
+
+## `docs/12-watermarks.md`
+
+```markdown
+# Watermark Management (Req 31–32)
+
+Version: 1.0 · Owner: Platform + Data Eng
+
+## 1. Purpose
+
+Watermarks are per-location checkpoints that guarantee:
+- **Incremental discovery** — no re-scan of historical files
+- **Idempotency** — a file is processed at most once per version
+- **Recovery** — a crashed watcher resumes from the last known good checkpoint
+- **Concurrency safety** — multiple workers cannot advance the same watermark
+
+## 2. The three invariants
+
+### Invariant 1 — Discovery idempotency
+**A file is never enqueued for processing more than once per version.**
+
+Enforced by:
+```sql
+CREATE UNIQUE INDEX ux_discovery_identity
+  ON fvi.discovery_log(location_id, source_ref, COALESCE(source_version, '-'));

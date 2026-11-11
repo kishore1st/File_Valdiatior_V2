@@ -1,0 +1,8 @@
+Build order (so you can stop/restart safely)
+
+1.db/ first — schema must exist before anything runs.
+2.backend/ — API + workers.
+3.frontend/ — UI.
+4.databricks/ — notebooks/jobs.
+5.tests/ — E2E + perf.
+6.docs/ — design docs (can be written last).

@@ -1,0 +1,11 @@
+{
+  "name": "fvi-autoloader-bronze",
+  "schedule": { "quartz_cron_expression": "0 0/15 * * * ?", "timezone_id": "UTC" },
+  "tasks": [
+    {
+      "task_key": "autoloader",
+      "notebook_task": { "notebook_path": "/Shared/fvi/01_autoloader_bronze" },
+      "existing_cluster_id": "${CLUSTER_ID}"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+openapi: 3.0.3
+info: { title: FVI API, version: 0.1.0 }
+paths:
+  /v1/auth/me:
+    get: { summary: Current user, responses: { "200": { description: OK } } }
+  /v1/batches:
+    post:
+      summary: Upload a batch (same schema type)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [schema_type_key, region_code, files]
+              properties:
+                schema_type_key: { type: string }
+                region_code:     { type: string }
+                files:
+                  type: array
+                  items: { type: string, format: binary }
+      responses:
+        "202": { description: Accepted }
+        "422": { description: Schema mismatch or empty }
+  /v1/batches/{batch_id}:
+    get:
+      parameters:
+        - { name: batch_id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses: { "200": { description: Summary } }
+  /v1/files:
+    get:
+      parameters:
+        - { name: status, in: query, schema: { type: string } }
+      responses: { "200": { description: List } }
+  /v1/files/{file_id}:
+    get:
+      parameters:
+        - { name: file_id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses: { "200": { description: File + events } }
+  /v1/watchers:
+    get: { summary: List watched locations, responses: { "200": { description: OK } } }
+  /v1/watchers/{id}/runs:
+    get: { responses: { "200": { description: Recent runs } } }
+  /v1/watchers/{id}/reset:
+    post: { summary: Reset watermark (admin), responses: { "200": { description: OK } } }
+  /v1/watchers/{id}/pause:
+    post: { summary: Pause watcher (admin), responses: { "200": { description: OK } } }
+  /v1/databricks/audit:
+    post: { summary: Accept audit push from Databricks, responses: { "200": { description: OK } } }
+  /v1/databricks/reconciliation:
+    get: { responses: { "200": { description: Inconsistent items } } }
+  /healthz:
+    get: { responses: { "200": { description: Alive } } }

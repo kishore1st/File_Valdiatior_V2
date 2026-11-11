@@ -1,0 +1,6 @@
+customer_id,first_name,last_name,dob,country
+3001,Anna,Muller,1987-04-11,DE
+3002,Luca,Rossi,1991-10-06,IT
+3003,Sofia,Martin,1982-01-21,FR
+3004,Pieter,Jansen,1994-08-15,NL
+3005,Elena,Popa,1989-05-07,RO

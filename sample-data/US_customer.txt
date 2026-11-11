@@ -1,0 +1,6 @@
+customer_id,first_name,last_name,dob,country
+2001,John,Smith,1980-07-14,US
+2002,Maria,Garcia,1990-02-25,US
+2003,David,Johnson,1975-12-03,US
+2004,Sarah,Brown,1995-06-18,US
+2005,Michael,Wilson,1983-09-09,US

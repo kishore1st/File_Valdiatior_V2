@@ -1,0 +1,6 @@
+customer_id,first_name,last_name,dob,country
+1001,Ravi,Kumar,1990-05-12,IN
+1002,Anita,Sharma,1985-11-23,IN
+1003,Vikram,Singh,1979-03-04,IN
+1004,Priya,Nair,1992-08-19,IN
+1005,Arjun,Reddy,1988-01-30,IN

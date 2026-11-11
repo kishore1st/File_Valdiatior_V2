@@ -1,0 +1,78 @@
+I am planning to build an MVP for the below requirement
+UI Portal:
+1.  User will upload CSV or Excel files from different regions or countries though UI Portal which will develop using React.js and required to do light weight validations need to be performed from the frontend and backend
+2. UI Portal will work with Octa SSO and users are required to get access to the UI portal with the help of Admin Portal and Servicenow request
+3. While uploading a file, React.JS should abole to generate a SHA256 key for the content of a file which will check the backend table for the duplication check and reject if duplicate file it is
+
+Database Model (suggested db technology is MongoDB)
+4. Need to build some tables for the file registery, audit, goverance, security, reconsilation and databricks volume mapping tables as part of resiliant frameworkd development
+5. during the file upload process, React.js should able to capture the user details, machine, IP address, File metadata, File level schema and schema validation also required to perform along with schema field positions
+6. during the file upload process, take first 5 records and compare the schema level field datatype comparision is also perform
+7. Also, required to log every entry for the future audits
+
+API (FastAPI)
+8. Every external communication should happend thru API only
+9. API should check the file backend validations/rules by checking file hash key tables and update the event tables for further action
+10. API should move the file to right databricks volume based on file mapping table if the file is approved
+11. API should get the ackonwledgement once file placed to databricks volume and feed the information to backend database
+
+Databricks:
+12. Autoloader will pickup the files from the databricks volume upon completion of file saved to volume thru API
+13. System tables have the audit information about each file processing results which will push to MongoDB for the reconsilation check
+14. Databricks REST API's will push the audit from bronze tables
+
+This is the MVP and it can be extendeble. 
+
+Performance & Concurrance
+15. If multiple users accessing the site and trying to upload 
+16. if multiple users trying to upload the same file from different machines
+17. if multiple files uploading by user and how to generate a hash key for each file and store it to table and if multiple users doing the same job concurrently
+
+
+Technology:
+18. Is it possible to shift the database technology from MOngodb to Relational database
+
+Soluction & Design Docuemnt
+19. Prepare a soluction document
+20. High level design document
+21. Low level design document
+22. SQL files to create tables, views, indexes
+23. sample data with at-least 5 csv files from 5 differnt countires and relevant databricks volume paths
+
+Features/test cases:
+24. React.Js (UI Portal) should accept the multiple file option as well with one schema type only
+    if user uploads 5 differnt files during one transaction then it should reject
+25. if multiple same schema files uploaded then it should maintain the que internally and generate hashkey one by one then do the backend valdiation
+26. if one file was duplicate out of 5 files during the multiple file uploads then reject the one bad file and notify the user 
+
+Smoke test
+27. Do a full round of testing end2end
+
+Load Test
+28. Prepare for the load test, SSO test
+
+Dashboards
+29. Audit charts, reconsilation dashboards, user activities, failure and reasons, one file life cycle table for each status 
+
+Coverage and flexible to extend this framework for other channels
+30. i. Requirement to connect External SFTP --> Internal SFTP --> Event Fire -->Framework start
+   ii. Requriement to connect Databricks Staging Volumes --> Event Fire -->Framework start
+  iii. Requirement to connect Sharepoint document libraries ---> Event Fire -->Framework start
+
+Event firing and watermarking for other 3 channels
+31. Enabling event watcher for each channel and use watermarking to fetch only the laste files
+32. Add watermarking tables with channel specific and folder specific
+
+11/11/2026
+----------
+For now, need the full repository and channel specific tables along with category and subcategory
+Need 
+1. Solution design documents
+2. HLD
+3. LLD
+4. SQL Scripts
+5. React.Js files
+6. Fast API code
+7. Databricks Rest API
+8. Test case documents
+9. Sample data sets

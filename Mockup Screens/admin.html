@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Portal — Administration</title>
+<style>
+  :root{
+    --bg:#eef1f6; --rail:#16233a; --rail-w:54px; --rail-open:190px;
+    --accent:#2f6fed; --accent-light:#e8f0fe; --green:#159a5b; --green-bg:#e4f6ec;
+    --red:#d63b3b; --red-bg:#fdecec; --amber:#b7791f; --amber-bg:#fdf3e3;
+    --border:#e2e7f0; --card:#fff; --text:#1c2733; --muted:#6b7787; --radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:13px;}
+  body{background:var(--bg);color:var(--text);}
+  a{text-decoration:none;color:inherit;}
+  .app{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+  /* ---------- Topbar ---------- */
+  .topbar{height:50px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:0 18px;flex:none;}
+  .topbar .logo{font-weight:800;font-size:15px;color:var(--rail);white-space:nowrap;}
+  .topbar .logo span{color:var(--accent);}
+  .gsearch{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:#f1f4f9;border-radius:8px;padding:7px 12px;color:var(--muted);}
+  .gsearch input{border:0;background:transparent;outline:none;width:100%;font-size:13px;}
+  .env{background:var(--amber-bg);color:var(--amber);font-weight:700;font-size:11px;padding:3px 10px;border-radius:11px;}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+
+  /* ---------- Rail (icon, expands on hover) ---------- */
+  .body{display:flex;flex:1;min-height:0;}
+  .rail{width:var(--rail-w);background:var(--rail);display:flex;flex-direction:column;padding:10px 0;transition:width .18s;overflow:hidden;flex:none;}
+  .rail:hover{width:var(--rail-open);}
+  .rail a{display:flex;align-items:center;gap:12px;color:#aebbd4;padding:11px 0 11px 16px;white-space:nowrap;font-size:13px;}
+  .rail a:hover{background:#223657;color:#fff;}
+  .rail a.active{background:var(--accent);color:#fff;font-weight:700;}
+  .rail a .ic{font-size:16px;width:22px;text-align:center;flex:none;}
+  .rail .spacer{flex:1;}
+  .rail-foot{color:#7f90ad;font-size:11px;padding:10px 16px;white-space:nowrap;}
+
+  /* ---------- Content ---------- */
+  .content{flex:1;overflow:auto;padding:16px 22px;}
+  .pagehead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
+  .pagehead h1{font-size:18px;font-weight:700;}
+  .crumb{font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;}
+  .card h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .pill{background:var(--accent-light);color:var(--accent);font-size:10.5px;padding:2px 8px;border-radius:10px;font-weight:700;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:1000px){.grid2{grid-template-columns:1fr;}}
+
+  .btn{border:0;border-radius:7px;padding:7px 14px;font-size:12.5px;cursor:pointer;font-weight:600;white-space:nowrap;}
+  .btn.primary{background:var(--accent);color:#fff;} .btn.ghost{background:#fff;border:1px solid var(--border);}
+  .btn.danger{background:var(--red);color:#fff;} .btn.green{background:var(--green);color:#fff;} .btn.sm{padding:4px 10px;font-size:11.5px;}
+  select,input[type=text]{padding:6px 9px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;}
+
+  .badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .b-ok{background:var(--green-bg);color:var(--green);} .b-err{background:var(--red-bg);color:var(--red);}
+  .b-warn{background:var(--amber-bg);color:var(--amber);} .b-info{background:var(--accent-light);color:var(--accent);}
+  .b-grey{background:#eef1f7;color:var(--muted);}
+  .hint{font-size:11.5px;color:var(--muted);line-height:1.55;}
+
+  /* ---------- Stepper ---------- */
+  .stepper{display:flex;align-items:center;gap:0;background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;margin-bottom:14px;}
+  .stp{display:flex;align-items:center;gap:8px;}
+  .stp .n{width:24px;height:24px;border-radius:50%;background:#e6eaf2;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+  .stp.on .n{background:var(--accent);color:#fff;}
+  .stp.done .n{background:var(--green);color:#fff;}
+  .stp .t{font-weight:600;font-size:12.5px;color:var(--muted);} .stp.on .t{color:var(--text);}
+  .stp-line{width:38px;height:2px;background:#dfe5ef;margin:0 10px;}
+  .stp-line.done{background:var(--green);}
+
+  /* ---------- Dropzone compact ---------- */
+  .dropzone{border:2px dashed #b9c6dd;border-radius:10px;padding:16px;text-align:center;color:var(--muted);background:#fafbfd;}
+  .dropzone:hover{border-color:var(--accent);background:var(--accent-light);cursor:pointer;}
+  .seg{display:inline-flex;background:#eef1f7;border-radius:7px;padding:2px;}
+  .seg button{border:0;background:transparent;padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;color:var(--muted);}
+  .seg button.on{background:#fff;font-weight:700;color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.12);}
+
+  /* ---------- Status toasts ---------- */
+  .toast{border-radius:8px;padding:9px 12px;display:flex;gap:9px;font-size:12.5px;align-items:flex-start;border:1px solid transparent;}
+  .toast.ok{background:var(--green-bg);border-color:#b9e6cd;color:#14613a;}
+  .toast.err{background:var(--red-bg);border-color:#f3c2c2;color:#8f1f1f;}
+  .toast.warn{background:var(--amber-bg);border-color:#f0dcb8;color:#7a5410;}
+  .toast ul{margin:4px 0 0 16px;} .toast li{margin:2px 0;}
+
+  /* ---------- Accordion ---------- */
+  .acc{border:1px solid var(--border);border-radius:9px;background:#fff;margin-bottom:8px;overflow:hidden;}
+  .acc-head{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px;user-select:none;}
+  .acc-head:hover{background:#f7f9fd;}
+  .acc-head .car{margin-left:auto;color:var(--muted);transition:.15s;}
+  .acc.open .acc-head .car{transform:rotate(90deg);}
+  .acc-body{display:none;padding:4px 14px 14px;}
+  .acc.open .acc-body{display:block;}
+  .rules-list li{margin:6px 0 6px 18px;line-height:1.5;}
+
+  /* ---------- Kanban lifecycle ---------- */
+  .kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+  @media(max-width:1100px){.kanban{grid-template-columns:repeat(3,1fr);}}
+  .kcol{background:#f6f8fc;border:1px solid var(--border);border-radius:9px;padding:8px;min-height:120px;}
+  .kcol .kh{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:4px 4px 8px;display:flex;justify-content:space-between;}
+  .kchip{background:#fff;border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:7px;padding:7px 9px;margin-bottom:7px;cursor:pointer;font-size:12px;}
+  .kchip:hover{box-shadow:0 2px 6px rgba(0,0,0,.08);}
+  .kchip.ok{border-left-color:var(--green);} .kchip.err{border-left-color:var(--red);} .kchip.warn{border-left-color:var(--amber);}
+  .kchip .sub{color:var(--muted);font-size:11px;margin-top:3px;display:flex;justify-content:space-between;}
+
+  /* ---------- Drawer ---------- */
+  .drawer-mask{position:fixed;inset:0;background:rgba(15,25,45,.35);display:none;z-index:40;}
+  .drawer-mask.open{display:block;}
+  .drawer{position:fixed;top:0;right:0;width:400px;max-width:92vw;height:100vh;background:#fff;box-shadow:-8px 0 30px rgba(0,0,0,.18);transform:translateX(105%);transition:.22s;z-index:50;display:flex;flex-direction:column;}
+  .drawer.open{transform:translateX(0);}
+  .drawer .dh{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .drawer .db{padding:16px 18px;overflow:auto;flex:1;}
+  .timeline{position:relative;margin-left:6px;padding-left:20px;border-left:2px solid var(--border);}
+  .t-item{position:relative;padding-bottom:16px;}
+  .t-item:last-child{padding-bottom:0;}
+  .t-dot{position:absolute;left:-27px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #c3cddd;}
+  .t-item.ok .t-dot{border-color:var(--green);} .t-item.run .t-dot{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-light);}
+  .t-item.fail .t-dot{border-color:var(--red);}
+  .t-title{font-weight:700;font-size:12.5px;} .t-meta{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .x{border:0;background:#eef1f7;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;}
+
+  /* ---------- Tables (compact) ---------- */
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;background:#f7f9fc;color:var(--muted);font-weight:700;padding:7px 10px;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.4px;}
+  td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12.5px;}
+  tr:last-child td{border-bottom:0;} tr:hover td{background:#fafcff;}
+  .mono{font-family:Consolas,Menlo,monospace;font-size:12px;}
+  .progress{height:7px;background:#eef1f7;border-radius:6px;overflow:hidden;min-width:90px;} .progress i{display:block;height:100%;background:var(--accent);}
+  .switch{position:relative;width:32px;height:18px;background:#cbd5e1;border-radius:18px;cursor:pointer;display:inline-block;vertical-align:middle;}
+  .switch.on{background:var(--green);} .switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:.2s;}
+  .switch.on::after{left:16px;}
+  .role-chip{border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .r-admin{background:#f3e8fd;color:#7c3aed;} .r-manager{background:#e0f2fe;color:#0369a1;}
+  .r-uploader{background:#ecfdf5;color:#047857;} .r-viewer{background:#f1f5f9;color:#64748b;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:12.5px;}
+  .chip b{font-size:15px;} .chip .l{font-size:11px;color:var(--muted);}
+  .gchip{background:#f4f7fc;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;display:inline-flex;align-items:center;gap:6px;}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  .search{padding:6px 11px;border:1px solid var(--border);border-radius:7px;width:220px;font-size:12.5px;}
+  .frow{margin-bottom:10px;} .frow label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:700;}
+  .frow input,.frow select{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">◆ Data<span>Portal</span></div>
+    <div class="gsearch">🔍 <input placeholder="Global search — files, users, rules, mappings…"></div>
+    <span style="flex:1"></span>
+    <span class="env">UAT</span>
+    <span class="avatar" title="Asha Kumar — Manager">AK</span>
+  </div>
+  <div class="body">
+    <div class="rail">
+    <a href="upload.html" class=""><span class="ic">⬆️</span><span class="lb">Upload</span></a>
+    <a href="lifecycle.html" class=""><span class="ic">🔄</span><span class="lb">Lifecycle</span></a>
+    <a href="admin.html" class="active"><span class="ic">🛡️</span><span class="lb">Admin</span></a>
+    <a href="manager.html" class=""><span class="ic">⚙️</span><span class="lb">Manager</span></a>
+      <div class="spacer"></div>
+      <a href="#"><span class="ic">❓</span><span class="lb">Help</span></a>
+      <div class="rail-foot">v2.4 · EMEA</div>
+    </div>
+    <div class="content">
+
+      <div class="pagehead">
+        <div><h1>Administration</h1><div class="crumb">Portal / Admin</div></div>
+        <div class="chips">
+          <div class="chip"><b>148</b><span class="l">users</span></div>
+          <div class="chip"><b>12</b><span class="l">AD groups</span></div>
+          <div class="chip"><b>4</b><span class="l">roles</span></div>
+          <div class="chip"><b style="color:var(--amber)">23</b><span class="l">pending invites</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <input class="search" placeholder="🔍 Search users…">
+          <button class="btn primary" data-open="ad-drawer">＋ Add from Active Directory</button>
+        </div>
+        <table>
+          <thead><tr><th>User</th><th>Role</th><th>Group</th><th>Status</th><th style="width:150px;">Actions</th></tr></thead>
+          <tbody>
+            <tr><td><span class="avatar" style="width:26px;height:26px;font-size:11px;">AK</span> <b>akumar</b> <span class="hint">Asha Kumar</span></td><td><span class="role-chip r-manager">Manager</span></td><td>Data-Ops</td><td><span class="badge b-ok">Active</span></td><td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Remove</button></td></tr>
+            <tr><td><span class="avatar" style="width:26px;height:26px;font-size:11px;background:#7c3aed;">JS</span> <b>jseo</b> <span class="hint">Jin Seo</span></td><td><span class="role-chip r-uploader">Uploader</span></td><td>Data-Ops</td><td><span class="badge b-ok">Active</span></td><td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Remove</button></td></tr>
+            <tr><td><span class="avatar" style="width:26px;height:26px;font-size:11px;background:#159a5b;">ML</span> <b>mlopez</b> <span class="hint">Maria Lopez</span></td><td><span class="role-chip r-admin">Admin</span></td><td>Data-Stewards</td><td><span class="badge b-ok">Active</span></td><td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Remove</button></td></tr>
+            <tr><td><span class="avatar" style="width:26px;height:26px;font-size:11px;background:#64748b;">RP</span> <b>rpatel</b> <span class="hint">Ravi Patel</span></td><td><span class="role-chip r-viewer">Viewer</span></td><td>Data-Ops</td><td><span class="badge b-grey">Deactivated</span></td><td><button class="btn green sm">Re-activate</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="toolbar"><h3 style="margin:0;">Groups</h3><button class="btn ghost sm">＋ New Group</button></div>
+        <div class="chips">
+          <span class="gchip"><b>Data-Ops</b> · 64 <span class="badge b-info">AD: SG-DataOps</span> ✎ 🗑</span>
+          <span class="gchip"><b>Data-Stewards</b> · 18 <span class="badge b-grey">Portal-only</span> ✎ 🗑</span>
+          <span class="gchip"><b>Sales-EMEA</b> · 41 <span class="badge b-info">AD: SG-Sales-EMEA</span> ✎ 🗑</span>
+        </div>
+      </div>
+
+      <div class="acc">
+        <div class="acc-head">🔐 Role permissions matrix <span class="car">▸</span></div>
+        <div class="acc-body">
+          <table>
+            <thead><tr><th>Capability</th><th>Admin</th><th>Manager</th><th>Uploader</th><th>Viewer</th></tr></thead>
+            <tbody>
+              <tr><td>Upload files</td><td>✅</td><td>✅</td><td>✅</td><td>—</td></tr>
+              <tr><td>Manage rules / mappings</td><td>✅</td><td>✅</td><td>—</td><td>—</td></tr>
+              <tr><td>Manage users &amp; groups</td><td>✅</td><td>—</td><td>—</td><td>—</td></tr>
+              <tr><td>View status reports</td><td>✅</td><td>✅</td><td>Own files</td><td>✅</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- AD add drawer -->
+      <div class="drawer-mask" id="ad-drawer-mask" data-close></div>
+      <div class="drawer" id="ad-drawer">
+        <div class="dh"><b>Add Users from Active Directory</b><button class="x" data-close>✕</button></div>
+        <div class="db">
+          <input class="search" style="width:100%;margin-bottom:12px;" placeholder="🔍 Search AD by name or email…">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="card" style="margin:0;padding:10px 12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="avatar">PN</span>
+                <div style="flex:1;"><b>Priya Nair</b><div class="hint">pnair@corp.local · <span class="badge b-info">SG-Sales-EMEA</span></div></div>
+                <button class="btn green sm">＋ Add</button>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <select style="flex:1;"><option>Role: Uploader</option><option>Viewer</option><option>Manager</option><option>Admin</option></select>
+                <select style="flex:1;"><option>Group: Data-Ops</option><option>Data-Stewards</option></select>
+              </div>
+            </div>
+            <div class="card" style="margin:0;padding:10px 12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="avatar" style="background:#7c3aed;">TW</span>
+                <div style="flex:1;"><b>Tom Weber</b><div class="hint">tweber@corp.local · <span class="badge b-info">SG-Finance</span></div></div>
+                <button class="btn green sm">＋ Add</button>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <select style="flex:1;"><option>Role: Viewer</option><option>Uploader</option><option>Manager</option></select>
+                <select style="flex:1;"><option>Group: Data-Stewards</option><option>Data-Ops</option></select>
+              </div>
+            </div>
+          </div>
+          <button class="btn ghost sm" style="margin-top:12px;">⟳ Sync with AD</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.acc-head').forEach(function(h){
+    h.addEventListener('click', function(){ h.parentElement.classList.toggle('open'); });
+  });
+  document.querySelectorAll('[data-open]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.getElementById(b.dataset.open).classList.add('open');
+      document.getElementById(b.dataset.open+'-mask').classList.add('open');
+    });
+  });
+  document.querySelectorAll('[data-close]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.drawer.open,.drawer-mask.open').forEach(function(d){ d.classList.remove('open'); });
+    });
+  });
+  document.querySelectorAll('.seg').forEach(function(s){
+    s.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        s.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+      });
+    });
+  });
+</script>
+</body>
+</html>

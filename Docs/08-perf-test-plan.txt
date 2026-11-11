@@ -1,0 +1,69 @@
+
+---
+
+## `docs/08-perf-test-plan.md`
+
+```markdown
+# Performance, Load & Stress Test Plan (Req 28 A–D)
+
+Version: 1.0 · Owner: QA + Platform · Uses k6 + Databricks SQL warehouse
+
+## 1. Objective
+
+Establish that the framework meets its non-functional targets:
+
+| Metric | Target (p95) |
+|---|---|
+| Register API latency (hash + insert) | ≤ 500 ms |
+| Full upload (10 MB CSV) end-to-end | ≤ 5 s |
+| Transfer to Databricks Volume | ≤ 30 s |
+| Throughput | ≥ 100 files / minute sustained |
+| Concurrent users supported | ≥ 50 |
+| Duplicate-detection under race | Exactly 1 registration, 0 exceptions |
+
+## 2. Scope (Req 28A–D)
+
+### A. Load testing
+- Multi-user concurrent UI access
+- Concurrent uploads from different machines
+- Multi-file batch (5 files per batch)
+- Different file sizes: 10 KB, 1 MB, 10 MB, 100 MB
+- Concurrent SHA-256 generation and duplicate detection
+- API latency + throughput
+- DB connection pool behaviour (asyncpg 20-connection pool)
+- Queue worker throughput (`ingestion_events` drain rate)
+- Databricks transfer + ingestion latency
+
+### B. Stress & scalability
+- Ramp concurrent users: 10 → 50 → 100 → 200
+- Find knee point (first point where p95 doubles)
+- Peak-load behaviour (100 VU for 10 min)
+- Resource utilization (CPU, memory, DB connections)
+- Recovery after runaway load (VUs back to 0; service returns to baseline within 5 min)
+
+### C. Okta SSO (see `docs/09-sso-test-plan.md` for full checklist)
+- 50 concurrent token acquisitions
+- Session expiry during load
+- RBAC enforcement under load (403s stay 403s, no leaks)
+
+### D. Performance report
+Ten metrics defined in §8 below.
+
+## 3. Pre-requisites
+
+| Item | Value |
+|---|---|
+| Environment | staging, same shape as prod (API pods, DB instance class) |
+| API instances | 2 × uvicorn 4 workers |
+| DB | PostgreSQL 16, 20-connection asyncpg pool, 8 GB RAM min |
+| Databricks | Small cluster, Auto Loader available |
+| k6 | Installed and reachable to `FVI_API` |
+| `FVI_TOKEN` | Uploader token valid for ≥ 2 h |
+| Databricks SQL warehouse | Accessible for latency queries |
+
+## 4. Scenarios
+
+### 4.1 Scenario L1 — single-user baseline
+```bash
+k6 run -e FVI_API=$FVI_API -e FVI_TOKEN=$FVI_TOKEN \
+       --vus 1 --duration 2m tests/perf/k6_upload.js

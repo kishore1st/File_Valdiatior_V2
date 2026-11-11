@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: fvi
+      POSTGRES_PASSWORD: fvi
+      POSTGRES_DB: fvi
+    ports: ["5432:5432"]
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+  api:
+    build: ./backend
+    environment:
+      PG_DSN: postgresql://fvi:fvi@db:5432/fvi
+      DATABRICKS_HOST: ${DATABRICKS_HOST:-}
+      DATABRICKS_TOKEN: ${DATABRICKS_TOKEN:-}
+      OKTA_JWKS_URL: ${OKTA_JWKS_URL:-}
+    ports: ["8000:8000"]
+    depends_on: [db]
+  ui:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm ci || npm install && npm run dev -- --host"
+    volumes: ["./frontend:/app"]
+    ports: ["5173:5173"]
+    depends_on: [api]

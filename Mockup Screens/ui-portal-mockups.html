@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Portal — UI Mockups</title>
+<style>
+  :root{
+    --bg:#f4f6fa; --sidebar:#1b2a41; --sidebar-hover:#25395c; --accent:#2f6fed;
+    --accent-light:#e8f0fe; --green:#1f9d61; --green-bg:#e6f7ee; --red:#d63b3b;
+    --red-bg:#fdecec; --amber:#b7791f; --amber-bg:#fdf3e3; --grey:#8a94a6;
+    --card:#ffffff; --border:#e3e8f0; --text:#1c2733; --muted:#6b7787;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{background:var(--bg);color:var(--text);font-size:14px;}
+  .layout{display:flex;min-height:100vh;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{width:250px;background:var(--sidebar);color:#cdd6e4;display:flex;flex-direction:column;}
+  .brand{padding:20px 18px;font-size:17px;font-weight:700;color:#fff;border-bottom:1px solid #2b3d5e;}
+  .brand span{color:#6ea8fe;}
+  .nav{padding:12px 0;flex:1;}
+  .nav-item{padding:12px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px;border-left:3px solid transparent;}
+  .nav-item:hover{background:var(--sidebar-hover);}
+  .nav-item.active{background:var(--sidebar-hover);border-left-color:var(--accent);color:#fff;font-weight:600;}
+  .nav-item .num{background:#33486e;color:#9fb6dc;font-size:11px;border-radius:10px;padding:2px 8px;margin-left:auto;}
+  .userfoot{padding:14px 18px;border-top:1px solid #2b3d5e;font-size:12px;color:#8fa0ba;}
+
+  /* ---------- Main ---------- */
+  .main{flex:1;padding:24px 30px;overflow-x:hidden;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+  .topbar h1{font-size:20px;font-weight:700;}
+  .topbar .crumb{color:var(--muted);font-size:12px;margin-top:3px;}
+  .env-badge{background:var(--amber-bg);color:var(--amber);padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;}
+
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;}
+  .card h3{font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card h3 .pill{background:var(--accent-light);color:var(--accent);font-size:11px;padding:2px 8px;border-radius:10px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+
+  /* ---------- Upload ---------- */
+  .dropzone{border:2px dashed #b9c6dd;border-radius:10px;padding:34px;text-align:center;color:var(--muted);background:#fafbfd;transition:.2s;}
+  .dropzone:hover{border-color:var(--accent);background:var(--accent-light);cursor:pointer;}
+  .dropzone .big{font-size:34px;margin-bottom:8px;}
+  .seg{display:inline-flex;background:#eef1f7;border-radius:8px;padding:3px;margin-bottom:16px;}
+  .seg button{border:0;background:transparent;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--muted);}
+  .seg button.on{background:#fff;color:var(--text);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12);}
+  .btn{border:0;border-radius:7px;padding:9px 18px;font-size:13px;cursor:pointer;font-weight:600;}
+  .btn.primary{background:var(--accent);color:#fff;}
+  .btn.ghost{background:#fff;border:1px solid var(--border);color:var(--text);}
+  .btn.danger{background:var(--red);color:#fff;}
+  .btn.green{background:var(--green);color:#fff;}
+  .btn.sm{padding:5px 12px;font-size:12px;}
+  .family{margin-top:12px;display:flex;gap:10px;align-items:center;font-size:13px;}
+  select,input[type=text]{padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;}
+
+  .msg{border-radius:8px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:13px;}
+  .msg.ok{background:var(--green-bg);border:1px solid #b9e6cd;color:#14613a;}
+  .msg.err{background:var(--red-bg);border:1px solid #f3c2c2;color:#8f1f1f;}
+  .msg.warn{background:var(--amber-bg);border:1px solid #f0dcb8;color:#7a5410;}
+  .msg ul{margin:6px 0 0 18px;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:11px;font-size:11.5px;font-weight:600;}
+  .b-ok{background:var(--green-bg);color:var(--green);}
+  .b-err{background:var(--red-bg);color:var(--red);}
+  .b-warn{background:var(--amber-bg);color:var(--amber);}
+  .b-info{background:var(--accent-light);color:var(--accent);}
+  .b-grey{background:#eef1f7;color:var(--muted);}
+
+  /* ---------- Tables ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;background:#f7f9fc;color:var(--muted);font-weight:600;padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.4px;}
+  td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:0;}
+  tr:hover td{background:#fafcff;}
+  .mono{font-family:Consolas,Menlo,monospace;font-size:12.5px;}
+
+  /* ---------- Lifecycle ---------- */
+  .flow{display:flex;align-items:center;gap:6px;margin:6px 0 18px;flex-wrap:wrap;}
+  .flow .step{background:#eef1f7;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--muted);}
+  .flow .arrow{color:#b3bdd0;}
+  .flow .step.done{background:var(--green-bg);color:var(--green);}
+  .flow .step.run{background:var(--accent-light);color:var(--accent);}
+  .timeline{position:relative;margin-left:8px;padding-left:22px;border-left:2px solid var(--border);}
+  .t-item{position:relative;padding-bottom:20px;}
+  .t-item:last-child{padding-bottom:0;}
+  .t-dot{position:absolute;left:-29px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #c3cddd;}
+  .t-item.ok .t-dot{border-color:var(--green);}
+  .t-item.run .t-dot{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-light);}
+  .t-item.fail .t-dot{border-color:var(--red);}
+  .t-title{font-weight:600;font-size:13.5px;}
+  .t-meta{font-size:12px;color:var(--muted);margin-top:3px;}
+  .progress{height:8px;background:#eef1f7;border-radius:6px;overflow:hidden;min-width:130px;}
+  .progress i{display:block;height:100%;background:var(--accent);}
+
+  /* ---------- Admin ---------- */
+  .role-chip{border-radius:6px;padding:2px 8px;font-size:11.5px;font-weight:600;}
+  .r-admin{background:#f3e8fd;color:#7c3aed;} .r-manager{background:#e0f2fe;color:#0369a1;}
+  .r-uploader{background:#ecfdf5;color:#047857;} .r-viewer{background:#f1f5f9;color:#64748b;}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-right:8px;vertical-align:middle;}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+  .stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;}
+  .stat .v{font-size:26px;font-weight:700;} .stat .l{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  /* ---------- Manager ---------- */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+  .tabs button{background:none;border:0;padding:9px 16px;font-size:13.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;}
+  .tabs button.on{color:var(--accent);font-weight:700;border-bottom-color:var(--accent);}
+  .switch{position:relative;width:36px;height:20px;background:#cbd5e1;border-radius:20px;cursor:pointer;display:inline-block;vertical-align:middle;}
+  .switch.on{background:var(--green);}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s;}
+  .switch.on::after{left:18px;}
+  .modal-mask{background:rgba(15,25,45,.35);border-radius:10px;padding:0;display:flex;}
+  .modal{background:#fff;border-radius:10px;width:100%;max-width:480px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.15);}
+  .modal h4{margin-bottom:14px;font-size:15px;}
+  .frow{margin-bottom:12px;}
+  .frow label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:600;}
+  .frow input,.frow select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;}
+  .modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+
+  .hint{font-size:12px;color:var(--muted);line-height:1.6;}
+  .rules-list li{margin:7px 0 7px 18px;line-height:1.55;}
+  .section-tag{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;margin:18px 0 8px;}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
+  .search{padding:8px 12px;border:1px solid var(--border);border-radius:7px;width:240px;font-size:13px;}
+  .note{font-size:12px;background:#fffbea;border:1px solid #f5e6b8;border-radius:8px;padding:10px 12px;color:#7a5410;margin-top:12px;}
+  @media(max-width:1050px){.grid2,.grid3,.stats,.kpi-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ============ SIDEBAR ============ -->
+  <div class="sidebar">
+    <div class="brand">◆ Data<span>Portal</span> <span style="font-size:11px;font-weight:400;color:#8fa0ba;">/ Mockups</span></div>
+    <div class="nav">
+      <div class="nav-item active" data-s="s1">📤 &nbsp;File Upload <span class="num">1</span></div>
+      <div class="nav-item" data-s="s2">🔄 &nbsp;Status &amp; Lifecycle <span class="num">2</span></div>
+      <div class="nav-item" data-s="s3">🛡 &nbsp;Admin — Users &amp; Roles <span class="num">3</span></div>
+      <div class="nav-item" data-s="s4">⚙ &nbsp;Manager — Rules &amp; Mappings <span class="num">4</span></div>
+    </div>
+    <div class="userfoot">Logged in: <b>akumar</b> · Manager<br>Region: EMEA · Group: Data-Ops</div>
+  </div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+
+    <!-- ======== SCREEN 1 : UPLOAD ======== -->
+    <div class="screen active" id="s1">
+      <div class="topbar">
+        <div><h1>File Upload</h1><div class="crumb">Portal / Upload / Single or Batch</div></div>
+        <span class="env-badge">ENV: UAT</span>
+      </div>
+
+      <div class="grid2">
+        <!-- 1.i Single upload -->
+        <div class="card">
+          <h3>Upload a Single File <span class="pill">CSV / Excel</span></h3>
+          <div class="seg"><button class="on">Single File</button><button>Batch Upload</button></div>
+          <div class="dropzone">
+            <div class="big">⬆️</div>
+            <b>Drag &amp; drop your file here</b> or <span style="color:var(--accent);font-weight:600;">browse</span>
+            <div class="hint" style="margin-top:8px;">Accepted: .csv, .xlsx, .xls &nbsp;|&nbsp; Max 50 MB</div>
+          </div>
+          <div class="family">
+            <label style="font-weight:600;">Data Family:</label>
+            <select><option>Sales Transactions</option><option>Customer Master</option><option>Inventory Snapshot</option><option>Financial GL</option></select>
+            <button class="btn primary">Upload</button>
+          </div>
+
+          <!-- success -->
+          <div class="msg ok">✅ <div><b>Upload successful</b> — <span class="mono">sales_emea_2026_10.csv</span>
+            <div class="hint">File landed on Databricks Volume <span class="mono">/vol/sales/</span>. Ingestion to Bronze queued.</div></div></div>
+
+          <!-- rejection: frontend validation -->
+          <div class="msg err">⛔ <div><b>File rejected (Frontend validation)</b> — <span class="mono">report_final.docx</span>
+            <ul><li>Unsupported file type <span class="mono">.docx</span> — only <b>.csv, .xlsx, .xls</b> allowed.</li>
+            <li>File size 87 MB exceeds the 50 MB limit.</li></ul></div></div>
+
+          <!-- rejection: backend validation -->
+          <div class="msg err">⛔ <div><b>File rejected (Backend validation)</b> — <span class="mono">customer_q3.xlsx</span>
+            <ul><li>Header mismatch: expected <span class="mono">[cust_id, region, amount]</span>, found <span class="mono">[id, zone, amt]</span>.</li>
+            <li>Duplicate file already ingested on 2026-11-02.</li>
+            <li>Family mismatch: file schema matches <i>Financial GL</i>, but <i>Customer Master</i> was selected.</li></ul></div></div>
+
+          <!-- partial / warn -->
+          <div class="msg warn">⚠ <div><b>Uploaded with warnings</b> — <span class="mono">inventory_week44.csv</span>
+            <ul><li>3 rows skipped (null mandatory field <span class="mono">sku_id</span> at rows 118, 204, 517).</li></ul></div></div>
+        </div>
+
+        <!-- 1.ii Batch upload -->
+        <div class="card">
+          <h3>Batch Upload <span class="pill">same data family</span></h3>
+          <div class="dropzone" style="padding:22px;">
+            <div class="big">📦</div>
+            <b>Drop multiple files</b> (they must belong to the <u>same data family</u>)<br>
+            <span class="hint">e.g. all “Sales Transactions” month files together</span>
+          </div>
+          <div class="family">
+            <label style="font-weight:600;">Data Family:</label>
+            <select><option>Sales Transactions</option></select>
+          </div>
+          <table style="margin-top:12px;">
+            <thead><tr><th>#</th><th>File</th><th>Size</th><th>Family check</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td class="mono">sales_jan.xlsx</td><td>4.2 MB</td><td><span class="badge b-ok">Match</span></td></tr>
+              <tr><td>2</td><td class="mono">sales_feb.xlsx</td><td>4.0 MB</td><td><span class="badge b-ok">Match</span></td></tr>
+              <tr><td>3</td><td class="mono">sales_mar.csv</td><td>3.1 MB</td><td><span class="badge b-err">Mismatch</span></td></tr>
+            </tbody>
+          </table>
+          <div class="note">⛔ Batch upload blocked: 1 file fails the family/schema check. Remove it or re-classify before uploading.</div>
+          <div style="margin-top:14px;display:flex;gap:8px;">
+            <button class="btn primary">Upload 2 valid files</button>
+            <button class="btn ghost">Clear batch</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.iv Upload rules -->
+      <div class="card">
+        <h3>📋 Rules to Consider While Uploading a File</h3>
+        <div class="grid2">
+          <div>
+            <div class="section-tag">File rules</div>
+            <ul class="rules-list">
+              <li>Formats: <b>.csv, .xlsx, .xls</b> only; max size <b>50 MB</b> per file (batch total 200 MB).</li>
+              <li>Naming convention: <span class="mono">&lt;family&gt;_&lt;region&gt;_YYYYMM</span> — e.g. <span class="mono">sales_emea_202610.xlsx</span>.</li>
+              <li>Encoding must be <b>UTF-8</b> (CSV); Excel must be a real workbook, not renamed.</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-tag">Data rules</div>
+            <ul class="rules-list">
+              <li>Header row is mandatory and must match the registered schema for the selected data family.</li>
+              <li>All files in a batch must belong to the <b>same data family</b>.</li>
+              <li>Duplicate files (name + checksum) are rejected at the Volume stage.</li>
+              <li>Mandatory columns must not be null; rows failing checks are skipped and reported.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== SCREEN 2 : STATUS / LIFECYCLE ======== -->
+    <div class="screen" id="s2">
+      <div class="topbar">
+        <div><h1>Status Report — File Lifecycle</h1><div class="crumb">Portal / Monitor / File pipeline</div></div>
+        <div><button class="btn ghost">⬇ Export CSV</button> <button class="btn primary">Refresh</button></div>
+      </div>
+
+      <div class="flow">
+        <span class="step done">✔ UI Upload</span><span class="arrow">→</span>
+        <span class="step done">✔ Databricks Volume</span><span class="arrow">→</span>
+        <span class="step run">⏳ Bronze Injection</span><span class="arrow">→</span>
+        <span class="step">Silver Injection</span><span class="arrow">→</span>
+        <span class="step">Lifecycle: Completed</span>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <input class="search" placeholder="🔍 Search by file name, ID, family…">
+          <div style="display:flex;gap:8px;">
+            <select><option>All statuses</option><option>Completed</option><option>In Progress</option><option>Failed</option><option>Rejected</option></select>
+            <select><option>Last 7 days</option><option>Last 30 days</option></select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>File ID</th><th>File Name</th><th>Family</th><th>Uploaded By</th><th>Current Stage</th><th>Progress</th><th>Status</th><th>Lifecycle</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="mono">F-20261110-01</td><td class="mono">sales_emea_202610.xlsx</td><td>Sales</td><td>akumar</td><td>Silver Injection</td><td><div class="progress"><i style="width:85%"></i></div></td><td><span class="badge b-info">In Progress</span></td><td><span class="badge b-ok">Active</span></td><td><button class="btn ghost sm">View</button></td></tr>
+            <tr><td class="mono">F-20261109-07</td><td class="mono">cust_master_na.csv</td><td>Customer</td><td>jseo</td><td>Bronze Injection</td><td><div class="progress"><i style="width:55%"></i></div></td><td><span class="badge b-info">In Progress</span></td><td><span class="badge b-ok">Active</span></td><td><button class="btn ghost sm">View</button></td></tr>
+            <tr><td class="mono">F-20261109-03</td><td class="mono">fin_gl_apac_202610.xlsx</td><td>Financial GL</td><td>mlopez</td><td>—</td><td><div class="progress"><i style="width:20%"></i></div></td><td><span class="badge b-err">Failed · Bronze</span></td><td><span class="badge b-warn">Error — retry</span></td><td><button class="btn ghost sm">View</button></td></tr>
+            <tr><td class="mono">F-20261108-12</td><td class="mono">inv_snap_w44.csv</td><td>Inventory</td><td>akumar</td><td>Completed</td><td><div class="progress"><i style="width:100%"></i></div></td><td><span class="badge b-ok">Completed</span></td><td><span class="badge b-ok">Retained</span></td><td><button class="btn ghost sm">View</button></td></tr>
+            <tr><td class="mono">F-20261108-05</td><td class="mono">sales_latam_202609.xlsx</td><td>Sales</td><td>rpatel</td><td>—</td><td><div class="progress"><i style="width:5%"></i></div></td><td><span class="badge b-err">Rejected</span></td><td><span class="badge b-grey">Archived</span></td><td><button class="btn ghost sm">View</button></td></tr>
+          </tbody>
+        </table>
+        <div class="note">Lifecycle policy: Completed files are <b>Retained</b> for 90 days on Volume, then <b>Archived → Purged</b>. Rejected files are quarantined for 14 days, then purged.</div>
+      </div>
+
+      <div class="grid2">
+        <!-- detail timeline -->
+        <div class="card">
+          <h3>Lifecycle Detail — <span class="mono">sales_emea_202610.xlsx</span> <span class="pill">F-20261110-01</span></h3>
+          <div class="timeline">
+            <div class="t-item ok"><span class="t-dot"></span><div class="t-title">UI Upload</div><div class="t-meta">2026-11-10 09:14:22 · by akumar · validation passed (frontend + backend)</div></div>
+            <div class="t-item ok"><span class="t-dot"></span><div class="t-title">Databricks Volume</div><div class="t-meta">09:14:41 · landed in <span class="mono">/Volumes/ingest/sales/</span> · checksum verified</div></div>
+            <div class="t-item ok"><span class="t-dot"></span><div class="t-title">Bronze Injection</div><div class="t-meta">09:21:03 · 128,442 rows loaded · table <span class="mono">bronze.sales_202610</span></div></div>
+            <div class="t-item run"><span class="t-dot"></span><div class="t-title">Silver Injection</div><div class="t-meta">Running… 85% · dedup + type casting + region enrichment</div></div>
+            <div class="t-item"><span class="t-dot"></span><div class="t-title">Lifecycle: Completed</div><div class="t-meta">Pending · retention clock starts after Silver completes</div></div>
+          </div>
+        </div>
+        <!-- failed case -->
+        <div class="card">
+          <h3>Failure Detail — <span class="mono">fin_gl_apac_202610.xlsx</span> <span class="pill">F-20261109-03</span></h3>
+          <div class="timeline">
+            <div class="t-item ok"><span class="t-dot"></span><div class="t-title">UI Upload</div><div class="t-meta">2026-11-09 16:02:10 · passed</div></div>
+            <div class="t-item ok"><span class="t-dot"></span><div class="t-title">Databricks Volume</div><div class="t-meta">16:02:29 · landed in <span class="mono">/Volumes/ingest/fin/</span></div></div>
+            <div class="t-item fail"><span class="t-dot"></span><div class="t-title">Bronze Injection — FAILED</div><div class="t-meta">16:09:47 · reason: <span class="mono">amount</span> column contains non-numeric values in 214 rows (e.g. “N/A”, “-”)</div></div>
+            <div class="t-item"><span class="t-dot"></span><div class="t-title">Silver Injection</div><div class="t-meta">Skipped — blocked by Bronze failure</div></div>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:8px;">
+            <button class="btn primary sm">🔁 Retry pipeline</button>
+            <button class="btn ghost sm">📄 Download error report</button>
+            <button class="btn danger sm">🗑 Quarantine file</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== SCREEN 3 : ADMIN ======== -->
+    <div class="screen" id="s3">
+      <div class="topbar">
+        <div><h1>Administration</h1><div class="crumb">Portal / Admin / Users, Groups &amp; Roles</div></div>
+        <button class="btn primary">＋ Add User</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="v">148</div><div class="l">Total Users</div></div>
+        <div class="stat"><div class="v">12</div><div class="l">Active Directory Groups</div></div>
+        <div class="stat"><div class="v">4</div><div class="l">Roles</div></div>
+        <div class="stat"><div class="v">23</div><div class="l">Pending Invites</div></div>
+      </div>
+
+      <!-- Add user from AD -->
+      <div class="card">
+        <h3>Add User from Active Directory <span class="pill">AD sync</span></h3>
+        <div class="toolbar" style="margin-bottom:0;">
+          <input class="search" placeholder="🔍 Search AD by name or email (e.g. “priya”)">
+          <button class="btn ghost">Sync with AD</button>
+        </div>
+        <table style="margin-top:14px;">
+          <thead><tr><th></th><th>AD User</th><th>Email</th><th>AD Groups</th><th>Assign Role</th><th>Assign Group</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><span class="avatar">PN</span></td><td><b>Priya Nair</b><div class="hint">CN=Priya Nair,OU=Sales,DC=corp,DC=local</div></td>
+                <td class="mono">pnair@corp.local</td><td><span class="badge b-info">SG-Sales-EMEA</span></td>
+                <td><select><option>Viewer</option><option selected>Uploader</option><option>Manager</option><option>Admin</option></select></td>
+                <td><select><option>Data-Ops</option><option>Data-Stewards</option></select></td>
+                <td><button class="btn green sm">＋ Add</button></td></tr>
+            <tr><td><span class="avatar">TW</span></td><td><b>Tom Weber</b><div class="hint">CN=Tom Weber,OU=Finance,DC=corp,DC=local</div></td>
+                <td class="mono">tweber@corp.local</td><td><span class="badge b-info">SG-Finance</span></td>
+                <td><select><option>Viewer</option><option>Uploader</option><option>Manager</option><option>Admin</option></select></td>
+                <td><select><option>Data-Stewards</option><option>Data-Ops</option></select></td>
+                <td><button class="btn green sm">＋ Add</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid2">
+        <!-- users table -->
+        <div class="card">
+          <h3>Portal Users</h3>
+          <table>
+            <thead><tr><th>User</th><th>Role</th><th>Group</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><span class="avatar">AK</span><b>akumar</b><div class="hint">Asha Kumar</div></td><td><span class="role-chip r-manager">Manager</span></td><td>Data-Ops</td><td><span class="badge b-ok">Active</span></td>
+                  <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Remove</button></td></tr>
+              <tr><td><span class="avatar">JS</span><b>jseo</b><div class="hint">Jin Seo</div></td><td><span class="role-chip r-uploader">Uploader</span></td><td>Data-Ops</td><td><span class="badge b-ok">Active</span></td>
+                  <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Remove</button></td></tr>
+              <tr><td><span class="avatar">ML</span><b>mlopez</b><div class="hint">Maria Lopez</div></td><td><span class="role-chip r-admin">Admin</span></td><td>Data-Stewards</td><td><span class="badge b-ok">Active</span></td>
+                  <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Remove</button></td></tr>
+              <tr><td><span class="avatar">RP</span><b>rpatel</b><div class="hint">Ravi Patel</div></td><td><span class="role-chip r-viewer">Viewer</span></td><td>Data-Ops</td><td><span class="badge b-grey">Deactivated</span></td>
+                  <td><button class="btn ghost sm">Re-activate</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- groups & roles -->
+        <div>
+          <div class="card">
+            <h3>Groups <button class="btn primary sm" style="margin-left:auto;">＋ New Group</button></h3>
+            <table>
+              <thead><tr><th>Group</th><th>Source</th><th>Members</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><b>Data-Ops</b></td><td><span class="badge b-info">AD: SG-DataOps</span></td><td>64</td><td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+                <tr><td><b>Data-Stewards</b></td><td><span class="badge b-grey">Portal-only</span></td><td>18</td><td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+                <tr><td><b>Sales-EMEA</b></td><td><span class="badge b-info">AD: SG-Sales-EMEA</span></td><td>41</td><td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Role Permissions Matrix</h3>
+            <table>
+              <thead><tr><th>Capability</th><th>Admin</th><th>Manager</th><th>Uploader</th><th>Viewer</th></tr></thead>
+              <tbody>
+                <tr><td>Upload files</td><td>✅</td><td>✅</td><td>✅</td><td>—</td></tr>
+                <tr><td>Manage rules / mappings</td><td>✅</td><td>✅</td><td>—</td><td>—</td></tr>
+                <tr><td>Manage users &amp; groups</td><td>✅</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>View status reports</td><td>✅</td><td>✅</td><td>Own files</td><td>✅</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== SCREEN 4 : MANAGER ======== -->
+    <div class="screen" id="s4">
+      <div class="topbar">
+        <div><h1>Manager Console</h1><div class="crumb">Portal / Manager / Rules, Regions &amp; Volume Mappings</div></div>
+        <span class="env-badge">Role: Manager</span>
+      </div>
+
+      <div class="kpi-row">
+        <div class="stat"><div class="v">27</div><div class="l">Active Rules</div></div>
+        <div class="stat"><div class="v">5 / 42</div><div class="l">Regions / Countries</div></div>
+        <div class="stat"><div class="v">9</div><div class="l">Volume Mappings</div></div>
+        <div class="stat"><div class="v">3</div><div class="l">Rules Pending Review</div></div>
+      </div>
+
+      <div class="card">
+        <div class="tabs">
+          <button class="on">Validation Rules</button>
+          <button>Regions &amp; Countries</button>
+          <button>Databricks Volume Mappings</button>
+        </div>
+
+        <!-- Rules tab -->
+        <div class="toolbar">
+          <input class="search" placeholder="🔍 Search rules…">
+          <button class="btn primary">＋ Add Rule</button>
+        </div>
+        <table>
+          <thead><tr><th>Rule</th><th>Family</th><th>Field</th><th>Condition</th><th>On Failure</th><th>State</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><b>R-101</b> Amount must be numeric</td><td>Sales</td><td class="mono">amount</td><td class="mono">type = decimal, not null</td><td><span class="badge b-err">Reject file</span></td>
+                <td><span class="switch on"></span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+            <tr><td><b>R-102</b> Valid region code</td><td>Sales</td><td class="mono">region</td><td class="mono">IN (registered regions)</td><td><span class="badge b-warn">Skip rows</span></td>
+                <td><span class="switch on"></span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+            <tr><td><b>R-118</b> No future dates</td><td>Inventory</td><td class="mono">snapshot_date</td><td class="mono">≤ today()</td><td><span class="badge b-warn">Skip rows</span></td>
+                <td><span class="switch"></span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button> <button class="btn green sm">Activate</button></td></tr>
+            <tr><td><b>R-124</b> Unique customer ID</td><td>Customer</td><td class="mono">cust_id</td><td class="mono">distinct within file</td><td><span class="badge b-err">Reject file</span></td>
+                <td><span class="switch on"></span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button> <button class="btn ghost sm">Deactivate</button></td></tr>
+          </tbody>
+        </table>
+        <div class="hint" style="margin-top:10px;">Switch = Activate / De-activate. De-activated rules stay visible but do not run during validation.</div>
+
+        <!-- Add rule modal mock -->
+        <div class="modal-mask" style="margin-top:16px;">
+          <div class="modal">
+            <h4>＋ Add Validation Rule</h4>
+            <div class="frow"><label>Rule Name</label><input type="text" value="Amount must be positive"></div>
+            <div class="grid2">
+              <div class="frow"><label>Data Family</label><select><option>Sales Transactions</option><option>Customer Master</option></select></div>
+              <div class="frow"><label>Field</label><select><option>amount</option><option>region</option><option>cust_id</option></select></div>
+            </div>
+            <div class="grid2">
+              <div class="frow"><label>Condition</label><select><option>&gt; 0</option><option>not null</option><option>in list</option><option>matches regex</option></select></div>
+              <div class="frow"><label>On Failure</label><select><option>Reject file</option><option>Skip rows</option><option>Warn only</option></select></div>
+            </div>
+            <div class="modal-foot"><button class="btn ghost">Cancel</button><button class="btn primary">Save Rule</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regions & Countries -->
+      <div class="card">
+        <h3>Regions &amp; Countries <button class="btn primary sm" style="margin-left:auto;">＋ Add Region</button> <button class="btn ghost sm">＋ Add Country</button></h3>
+        <table>
+          <thead><tr><th>Region</th><th>Countries</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><b>EMEA</b></td><td>UK, Germany, France, Spain, UAE, South Africa <span class="hint">(6)</span></td><td><span class="badge b-ok">Active</span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+            <tr><td><b>North America</b></td><td>USA, Canada, Mexico <span class="hint">(3)</span></td><td><span class="badge b-ok">Active</span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+            <tr><td><b>APAC</b></td><td>India, Japan, Australia, Singapore <span class="hint">(4)</span></td><td><span class="badge b-ok">Active</span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+            <tr><td><b>LatAm</b></td><td>Brazil, Chile <span class="hint">(2)</span></td><td><span class="badge b-grey">Inactive</span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button> <button class="btn green sm">Activate</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Volume mappings -->
+      <div class="card">
+        <h3>Databricks Volume Mappings <span class="pill">Fetch → Edit → Save</span></h3>
+        <div class="toolbar">
+          <span class="hint">Mappings route uploaded files (by Family + Region) to the correct Volume path.</span>
+          <div style="display:flex;gap:8px;"><button class="btn ghost">⟳ Fetch from Databricks</button> <button class="btn primary">＋ Add New Mapping</button></div>
+        </div>
+        <table>
+          <thead><tr><th>Data Family</th><th>Region</th><th>Volume Path</th><th>Bronze Table</th><th>Synced</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr class="mono"><td>Sales Transactions</td><td>EMEA</td><td>/Volumes/ingest/sales/emea/</td><td>bronze.sales_emea</td><td><span class="badge b-ok">✔ in sync</span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+            <tr class="mono" style="background:#fffdf5;"><td>Sales Transactions</td><td>North America</td><td>/Volumes/ingest/sales/na_old/</td><td>bronze.sales_na</td><td><span class="badge b-warn">⚠ drifted</span></td>
+                <td><button class="btn primary sm">Edit &amp; Save</button> <button class="btn danger sm">Delete</button></td></tr>
+            <tr class="mono"><td>Customer Master</td><td>Global</td><td>/Volumes/ingest/cust/global/</td><td>bronze.cust_master</td><td><span class="badge b-ok">✔ in sync</span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+            <tr class="mono"><td>Financial GL</td><td>APAC</td><td>/Volumes/ingest/fin/apac/</td><td>bronze.fin_gl_apac</td><td><span class="badge b-ok">✔ in sync</span></td>
+                <td><button class="btn ghost sm">Edit</button> <button class="btn danger sm">Delete</button></td></tr>
+          </tbody>
+        </table>
+
+        <!-- add new mapping modal mock -->
+        <div class="modal-mask" style="margin-top:16px;">
+          <div class="modal">
+            <h4>＋ Add New Volume Mapping</h4>
+            <div class="grid2">
+              <div class="frow"><label>Data Family</label><select><option>Sales Transactions</option><option>Customer Master</option><option>Inventory Snapshot</option><option>Financial GL</option></select></div>
+              <div class="frow"><label>Region</label><select><option>LatAm</option><option>EMEA</option><option>APAC</option></select></div>
+            </div>
+            <div class="frow"><label>Databricks Volume Path</label><input type="text" class="mono" placeholder="/Volumes/ingest/sales/latam/"></div>
+            <div class="frow"><label>Bronze Target Table</label><input type="text" class="mono" placeholder="bronze.sales_latam"></div>
+            <div class="modal-foot"><button class="btn ghost">Cancel</button><button class="btn primary">💾 Save Mapping</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.nav-item').forEach(function(n){
+    n.addEventListener('click', function(){
+      document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+      n.classList.add('active');
+      document.getElementById(n.dataset.s).classList.add('active');
+      window.scrollTo(0,0);
+    });
+  });
+  document.querySelectorAll('.tabs button').forEach(function(t){
+    t.addEventListener('click', function(){
+      t.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+      t.classList.add('on');
+    });
+  });
+</script>
+</body>
+</html>

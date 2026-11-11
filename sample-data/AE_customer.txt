@@ -1,0 +1,6 @@
+customer_id,first_name,last_name,dob,country
+5001,Omar,AlFarsi,1985-01-19,AE
+5002,Fatima,AlMansoori,1992-06-24,AE
+5003,Khalid,AlHassan,1979-09-10,AE
+5004,Leila,AlNaimi,1996-03-08,AE
+5005,Ali,AlSharif,1983-05-27,AE

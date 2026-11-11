@@ -1,0 +1,24 @@
+
+---
+
+## `docs/10-monitoring.md`
+
+```markdown
+# Monitoring, Audit & Dashboards (Req 29)
+
+Version: 1.0 · Owner: SRE + Data Platform
+
+## 1. Objective
+
+Provide centralized, real-time visibility into:
+- File ingestion health (per channel, per region)
+- Duplicate prevention effectiveness
+- Transfer success and latency to Databricks
+- Reconciliation status between PostgreSQL and Databricks
+- Watcher health and checkpoint progression
+- Authentication and access anomalies
+
+All metrics persist to `fvi.monitor_metrics` and are surfaced via
+`fvi.dashboard_config` panels rendered in Grafana or Superset.
+
+## 2. Architecture

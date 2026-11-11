@@ -1,0 +1,67 @@
+
+---
+
+## `docs/11-multichannel.md`
+
+```markdown
+# Multi-Channel Ingestion (Req 30)
+
+Version: 1.0 · Owner: Platform
+
+## 1. Overview
+
+The framework accepts files from 6 channel categories and 10 subcategories.
+Each channel is a **connector** — the validation, dedup, transfer, audit, and
+reconciliation pipelines are identical across channels.
+
+## 2. Channel taxonomy
+
+Reference data lives in `fvi.channel_category` and `fvi.channel_subcategory`:
+
+### 2.1 Categories (`fvi.channel_category`)
+
+| code | description |
+|---|---|
+| `FILE_SYSTEM` | SFTP, network shares, enterprise filesystems |
+| `CLOUD_STORAGE` | S3, ADLS, GCS, Azure Blob |
+| `DOCUMENT_MANAGEMENT` | SharePoint, Box, Confluence |
+| `DATA_PLATFORM` | Databricks Volumes, Snowflake stages |
+| `WEB_UPLOAD` | Browser upload via UI portal |
+| `API_PUSH` | REST or webhook-driven ingest |
+
+### 2.2 Subcategories (`fvi.channel_subcategory`)
+
+| code | category | MVP |
+|---|---|---|
+| `SFTP` | FILE_SYSTEM | ✓ |
+| `INTERNAL_FS` | FILE_SYSTEM | — |
+| `S3` | CLOUD_STORAGE | future |
+| `ADLS` | CLOUD_STORAGE | future |
+| `GCS` | CLOUD_STORAGE | future |
+| `BLOB` | CLOUD_STORAGE | future |
+| `SHAREPOINT` | DOCUMENT_MANAGEMENT | ✓ |
+| `DBX_VOLUME` | DATA_PLATFORM | ✓ |
+| `REACT_UI` | WEB_UPLOAD | ✓ |
+| `REST_PUSH` | API_PUSH | ✓ |
+
+## 3. Reference data seed
+
+```sql
+INSERT INTO fvi.ingestion_sources
+  (source_type, category_code, subcategory_code, source_key, display_name, region_code, config)
+VALUES
+ -- Web UI (created automatically by API, but seeded here for reference)
+ ('WEB_UI','WEB_UPLOAD','REACT_UI','web-portal','React Portal',NULL,'{}'),
+
+ -- External SFTP
+ ('SFTP','FILE_SYSTEM','SFTP','ext-sftp-eu','EU SFTP Drop','EU',
+  '{"host":"sftp-eu.example.com","port":22,"username":"fvi_ro","secret_ref":"vault://sftp-eu"}'),
+
+ -- Databricks staging Volume
+ ('DBX_VOLUME','DATA_PLATFORM','DBX_VOLUME','dbx-stage-in','Databricks Staging','IN',
+  '{"volume_path":"/Volumes/main/bronze/staging/IN/"}'),
+
+ -- SharePoint
+ ('SHAREPOINT','DOCUMENT_MANAGEMENT','SHAREPOINT','sp-finance','Finance Library','GB',
+  '{"drive_id":"b!abc","token_ref":"vault://graph-token"}')
+ON CONFLICT (source_type, source_key) DO NOTHING;
