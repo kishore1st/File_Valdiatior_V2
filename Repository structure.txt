@@ -1,0 +1,95 @@
+File_Valdiatior_V2/
+├── README.md
+├── docker-compose.yml
+├── .env.example
+├── .gitignore
+├── docs/
+│   ├── 01-solution-design.md
+│   ├── 02-hld.md
+│   ├── 03-lld.md
+│   ├── 04-api-spec.yaml
+│   ├── 05-test-cases.md
+│   ├── 06-runbook.md
+│   ├── 07-smoke-test-plan.md
+│   ├── 08-perf-test-plan.md
+│   ├── 09-sso-test-plan.md
+│   ├── 10-monitoring.md
+│   ├── 11-multichannel.md
+│   └── 12-watermarks.md
+├── db/
+│   ├── 01-schema.sql
+│   ├── 02-seed.sql
+│   ├── 03-views.sql
+│   ├── 04-functions.sql
+│   ├── 05-test-schema.sql
+│   ├── 06-monitoring.sql
+│   ├── 07-channel-schema.sql
+│   ├── 08-watermark-schema.sql
+│   ├── 09-channel-views.sql
+│   └── sample-data/
+│       ├── IN_customer.csv
+│       ├── US_customer.csv
+│       ├── EU_customer.csv
+│       ├── GB_customer.csv
+│       └── AE_customer.csv
+├── backend/
+│   ├── pyproject.toml
+│   ├── Dockerfile
+│   └── app/
+│       ├── main.py
+│       ├── config.py
+│       ├── db.py
+│       ├── deps.py
+│       ├── models.py
+│       ├── routers/
+│       │   ├── auth.py
+│       │   ├── uploads.py
+│       │   ├── batches.py
+│       │   ├── files.py
+│       │   ├── databricks.py
+│       │   ├── watchers.py
+│       │   └── health.py
+│       ├── services/
+│       │   ├── hash_service.py
+│       │   ├── validation_service.py
+│       │   ├── databricks_client.py
+│       │   ├── ingestion_worker.py
+│       │   ├── okta.py
+│       │   └── watchers/
+│       │       ├── base.py
+│       │       ├── sftp.py
+│       │       ├── dbx_volume.py
+│       │       ├── sharepoint.py
+│       │       └── scheduler.py
+│       └── tests/
+│           ├── conftest.py
+│           ├── test_hash_dedup.py
+│           ├── test_batch_partial.py
+│           └── test_watermark.py
+├── frontend/
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── index.html
+│   └── src/
+│       ├── main.tsx
+│       ├── App.tsx
+│       ├── api/client.ts
+│       ├── auth/OktaProvider.tsx
+│       ├── components/
+│       │   ├── FileUploader.tsx
+│       │   ├── BatchSummary.tsx
+│       │   └── StatusTable.tsx
+│       └── utils/sha256.ts
+├── databricks/
+│   ├── notebooks/
+│   │   ├── 01_autoloader_bronze.py
+│   │   └── 02_sync_audit_to_api.py
+│   └── jobs/
+│       └── autoloader_job.json
+└── tests/
+    ├── e2e/
+    │   ├── test_ui_flow.py
+    │   ├── test_sftp_watermark.py
+    │   └── test_volume_watermark.py
+    └── perf/
+        └── k6_upload.js
